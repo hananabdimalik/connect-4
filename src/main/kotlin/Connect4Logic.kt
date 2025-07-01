@@ -19,7 +19,7 @@ class Connect4Logic : Connect4Interface {
         }
     )
 
-    data class PlayerCoordinates(val x: Int, val y: Int)
+    data class Coordinates(val x: Int, val y: Int)
 
     enum class GameState {
         Player1Wins,
@@ -31,15 +31,15 @@ class Connect4Logic : Connect4Interface {
     var currentPlayer = Players.Player1
 
     fun makeAMove(board: GameBoard, selectedCell: Int) {
-        val mapSelectedCellToCoordinate = mapPositionToCoordinate(selectedCell)
+        val mapSelectedCellToCoordinate = mapPlayerInputToCoordinate(selectedCell)
         val findListOfCellsBasedOnSelection = listOfCellsBasedOnPosition(mapSelectedCellToCoordinate, board)
         val findAvailableCells = findListOfAvailableCells(findListOfCellsBasedOnSelection, board)
         val findAvailableCellsWithBound = findListOfAvailableCellsWithinBounds(findAvailableCells)
-        val findTheSmallestAvailableCell =
-            if (findAvailableCellsWithBound.isNotEmpty()) lowestAvailableCellInBoard(findAvailableCellsWithBound) else return // change the name of this function
+        val findTheLowestAvailableCellInBoard =
+            if (findAvailableCellsWithBound.isNotEmpty()) lowestAvailableCellInBoard(findAvailableCellsWithBound) else return
 
-        if (board.cells[findTheSmallestAvailableCell.x][findTheSmallestAvailableCell.y] == BoardState.Empty) {
-            updateBoard(findTheSmallestAvailableCell, board)
+        if (board.cells[findTheLowestAvailableCellInBoard.x][findTheLowestAvailableCellInBoard.y] == BoardState.Empty) {
+            updateBoard(findTheLowestAvailableCellInBoard, board)
             alternatePlayers()
         }
 
@@ -48,7 +48,7 @@ class Connect4Logic : Connect4Interface {
         }
     }
 
-    override fun updateBoard(position: PlayerCoordinates, board: GameBoard) {
+    override fun updateBoard(position: Coordinates, board: GameBoard) {
         if (currentPlayer == Players.Player1) {
             board.cells[position.x][position.y] = BoardState.Player1Piece
         }
@@ -66,49 +66,36 @@ class Connect4Logic : Connect4Interface {
         }
     }
 
-    override fun mapPositionToCoordinate(position: Int) = PlayerCoordinates(position / 8, position % 8)
+    override fun mapPlayerInputToCoordinate(position: Int) = Coordinates(position / 8, position % 8)
 
-    // given a number -> give me list of numbers in a col
-    override fun listOfCellsBasedOnPosition(position: PlayerCoordinates, board: GameBoard): List<PlayerCoordinates> {
-        val cells = mutableListOf<PlayerCoordinates>()
-        for (i in 0 until board.cells.size) {
-            for (j in 0 until board.cells[i].size) {
-                if (j == position.y) {
-                    cells.add(PlayerCoordinates(i, j))
+    // given a player move -> give list of coordinates in a col
+    override fun listOfCellsBasedOnPosition(position: Coordinates, board: GameBoard): List<Coordinates> {
+        val cells = mutableListOf<Coordinates>()
+        for (x in 0 until board.cells.size) {
+            for (y in 0 until board.cells[x].size) {
+                if (y == position.y) {
+                    cells.add(Coordinates(x = x, y = y))
                 }
             }
         }
         return cells
     }
 
-    override fun findListOfAvailableCells(cells: List<PlayerCoordinates>, gameBoard: GameBoard) =
+    override fun findListOfAvailableCells(cells: List<Coordinates>, gameBoard: GameBoard) =
         cells.filter { cell -> gameBoard.cells[cell.x][cell.y] == BoardState.Empty }
 
-    override fun findListOfAvailableCellsWithinBounds(cells: List<PlayerCoordinates>) = cells.filter { cell ->
+    override fun findListOfAvailableCellsWithinBounds(cells: List<Coordinates>) = cells.filter { cell ->
         cell.x in 0 until 8 && cell.y in 0 until 8
     }
 
-    override fun lowestAvailableCellInBoard(cells: List<PlayerCoordinates>): PlayerCoordinates {
-        var largestXValue = 0
+    override fun lowestAvailableCellInBoard(cells: List<Coordinates>): Coordinates {
+        var xValue = 0
         cells.forEach { cell ->
-            if (cell.x > largestXValue) {
-                largestXValue = cell.x
+            if (cell.x > xValue) {
+                xValue = cell.x
             }
         }
-        return PlayerCoordinates(largestXValue, cells[0].y)
-    }
-
-    // how to find game output
-    private fun hasConsecutiveNumbers(input: List<Int>, diff: Int): Boolean {
-        var count = 0
-        input.forEachIndexed { index, i ->
-            if (index + 1 <= input.lastIndex) {
-                if (input[index + 1] - input[index] == diff) {
-                    count++
-                }
-            }
-        }
-        return count == 3
+        return Coordinates(xValue, cells[0].y)
     }
 
     override fun getGameOutput(board: GameBoard): GameState {
@@ -134,23 +121,29 @@ class Connect4Logic : Connect4Interface {
     }
 
     fun hasConnectedHorizontally(selection: List<Int>): Boolean { // if the diff is 1
-        selection.sorted().windowed(4, 1).forEach {
-            if (hasConsecutiveNumbers(it, 1)) {
-                return true
+        var count = 0
+            selection.forEachIndexed { index, i ->
+                if (index + 1 <= selection.lastIndex) {
+                    if (selection[index + 1] - selection[index] == 1) {
+                        count++
+                    }
+                    if (count == 3) {
+                        return true
+                    }
+                }
             }
-        }
         return false
     }
 
-    fun hasConnectedVertically(selection: List<Int>): Boolean { // if the diff is 8
+    private fun hasConnectedVertically(selection: List<Int>): Boolean { // if the diff is 8
         return hasConnectedBySetValue(selection, 8)
     }
 
-    fun hasConnectedDiagonally(selection: List<Int>): Boolean {
+    private fun hasConnectedDiagonally(selection: List<Int>): Boolean { // if the diff is 7 || 9
         return hasConnectedBySetValue(selection, 7) || hasConnectedBySetValue(selection, 9)
     }
 
-    fun hasConnectedBySetValue(selection: List<Int>, value: Int): Boolean {
+    private fun hasConnectedBySetValue(selection: List<Int>, value: Int): Boolean {
         selection.forEachIndexed { index, _ ->
             if (selection.contains(selection[index])
                 && selection.contains(selection[index] + value)
@@ -174,7 +167,7 @@ class Connect4Logic : Connect4Interface {
 // players
 // game state
 
-// Rules
+// Rules - how to play
 // First player that has 4 consecutive pieces (horizontal, vertical and diagonal) wins
 // how player takes a position -> first available index in a col, within bound
 
@@ -182,4 +175,3 @@ class Connect4Logic : Connect4Interface {
 // formula for diagonal numbers
 
 // this is for a 8 * 8 symmetrical grid
-// how to play
