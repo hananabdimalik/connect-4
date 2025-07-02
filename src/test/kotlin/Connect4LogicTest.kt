@@ -1,8 +1,8 @@
 import com.games.Connect4Logic
 import com.games.Connect4Logic.BoardState.Player1Piece
+import com.games.Connect4Logic.Coordinates
 import com.games.Connect4Logic.GameState.Player1Wins
 import com.games.Connect4Logic.GameState.Player2Wins
-import com.games.Connect4Logic.Coordinates
 import com.games.Connect4Logic.Players.Player2
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -169,12 +169,12 @@ class Connect4LogicTest {
     }
 
     @Test
-    fun `hasConnectedDiagonally, given 4 numbers connected, return true`() {
+    fun `hasConnected, given 4 numbers connected, return true`() {
         assertEquals(true, connect4Logic.hasConnected(listOf(57, 59, 50, 52, 54, 45, 38)))
     }
 
     @Test
-    fun `hasConnectedDiagonally, given a list of input that not connected, return false`() {
+    fun `hasConnected, given a list of input that not connected, return false`() {
         assertEquals(false, connect4Logic.hasConnected(listOf(42, 43, 49, 50, 56, 60)))
     }
 
@@ -190,17 +190,22 @@ class Connect4LogicTest {
     }
 
     @Test
-    fun `hasConnectedHorizontally, given a list of input that is connected horizontally, return true`() {
+    fun `hasConnected, given a list of input that is connected horizontally, return true`() {
         assertEquals(true, connect4Logic.hasConnected(listOf(50, 57, 58, 59, 60)))
     }
 
     @Test
-    fun `hasConnectedDiagonally, given a list of input that is not connected diagonally, return false`() {
+    fun `hasConnected, given a list of input that is not connected diagonally, return false`() {
         assertEquals(false, connect4Logic.hasConnected(listOf(33, 42, 43, 49, 51, 52, 61)))
     }
 
     @Test
-    fun `hasConnectedVertically, given a list of input that is connected vertically, return true`() {
+    fun `hasConnected, given a list of input that is connected vertically, return true`() {
         assertEquals(true, connect4Logic.hasConnected(listOf(31, 39, 47, 55, 61)))
+    }
+
+    @Test
+    fun `hasConnected, given a list of input that arent connected, return false`() {
+        assertEquals(false, connect4Logic.hasConnected(listOf(42, 43, 49, 50, 56, 59, 61, 62)))
     }
 }

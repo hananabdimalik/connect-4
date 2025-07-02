@@ -121,13 +121,13 @@ class Connect4Logic : Connect4Interface {
     }
 
     fun hasConnectedHorizontally(selection: List<Int>): Boolean { // if the diff is 1
-        var count = 0
             selection.forEachIndexed { index, i ->
                 if (index + 1 <= selection.lastIndex) {
-                    if (selection[index + 1] - selection[index] == 1) {
-                        count++
-                    }
-                    if (count == 3) {
+                    if (selection.contains(selection[index])
+                        && selection.contains(selection[index] + 1)
+                        && selection.contains(selection[index] + 2)
+                        && selection.contains(selection[index] + 3)
+                    ) {
                         return true
                     }
                 }
