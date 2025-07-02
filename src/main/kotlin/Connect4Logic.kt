@@ -120,28 +120,13 @@ class Connect4Logic : Connect4Interface {
         return GameState.None
     }
 
-    fun hasConnectedHorizontally(selection: List<Int>): Boolean { // if the diff is 1
-            selection.forEachIndexed { index, i ->
-                if (index + 1 <= selection.lastIndex) {
-                    if (selection.contains(selection[index])
-                        && selection.contains(selection[index] + 1)
-                        && selection.contains(selection[index] + 2)
-                        && selection.contains(selection[index] + 3)
-                    ) {
-                        return true
-                    }
-                }
-            }
-        return false
-    }
+    private fun hasConnectedHorizontally(selection: List<Int>) =
+        hasConnectedBySetValue(selection, 1) // if the diff is 1
 
-    private fun hasConnectedVertically(selection: List<Int>): Boolean { // if the diff is 8
-        return hasConnectedBySetValue(selection, 8)
-    }
+    private fun hasConnectedVertically(selection: List<Int>) = hasConnectedBySetValue(selection, 8) // if the diff is 8
 
-    private fun hasConnectedDiagonally(selection: List<Int>): Boolean { // if the diff is 7 || 9
-        return hasConnectedBySetValue(selection, 7) || hasConnectedBySetValue(selection, 9)
-    }
+    private fun hasConnectedDiagonally(selection: List<Int>) =
+        hasConnectedBySetValue(selection, 7) || hasConnectedBySetValue(selection, 9) // if the diff is 7 || 9
 
     private fun hasConnectedBySetValue(selection: List<Int>, value: Int): Boolean {
         selection.forEachIndexed { index, _ ->
